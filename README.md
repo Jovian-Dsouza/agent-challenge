@@ -22,7 +22,7 @@ For this challenge we will be using Mastra to build our tool.
 We recommend reading the following sections to get started with how to create an Agent and how to implement Tool Calling.
 
 - <https://mastra.ai/en/docs/agents/overview>
-- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/stock-agent)
+- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/financial-analyst-agent)
 
 ## Get Started
 
@@ -308,7 +308,7 @@ All prizes are paid out directly to participants on [SuperTeam](https://supertea
 
 - [Nosana Documentation](https://docs.nosana.io)
 - [Mastra Documentation](https://mastra.ai/docs)
-- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/stock-agent)
+- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/financial-analyst-agent)
 - [Nosana CLI](https://github.com/nosana-ci/nosana-cli)
 - [Docker Documentation](https://docs.docker.com)
 
