@@ -32,6 +32,8 @@ COPY . .
 # Build the project
 RUN pnpm run build
 
+ENV PATH="/root/.cargo/bin:/root/.local/bin:${PATH}"
+
 # Override the default entrypoint
 ENTRYPOINT ["/bin/sh", "-c"]
 
