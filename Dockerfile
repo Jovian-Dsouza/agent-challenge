@@ -36,4 +36,4 @@ RUN pnpm run build
 ENTRYPOINT ["/bin/sh", "-c"]
 
 # Start Ollama service and pull the model, then run the app
-CMD ["ollama serve & sleep 5 && ollama pull ${MODEL_NAME_AT_ENDPOINT} && node .mastra/output/index.mjs"]
+CMD ["uvx mcp-yahoo-finance & uvx duckduckgo-mcp-server & ollama serve & sleep 5 && ollama pull ${MODEL_NAME_AT_ENDPOINT} && node .mastra/output/index.mjs"]
