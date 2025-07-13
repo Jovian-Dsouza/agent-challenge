@@ -7,8 +7,8 @@ export const mcp = new MCPClient({
       "args": ["mcp-yahoo-finance"]
     },
     "duckduckgo": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "mcp/duckduckgo"]
+      "command": "uvx",
+      "args": ["duckduckgo-mcp-server"]
     }
   },
 });
