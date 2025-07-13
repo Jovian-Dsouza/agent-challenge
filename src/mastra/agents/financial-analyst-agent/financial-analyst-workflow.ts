@@ -335,6 +335,61 @@ const analyzeStockData = createStep({
     },
   });
 
+const summaryAgent = new Agent({
+  name: "Financial Summary Agent",
+  model,
+  instructions: `
+    You are a financial summary and insights specialist. Your job is to read the full analysis of a stock (including dividend, news, income statement, cash flow, and earnings analyses) and provide:
+    1. A concise summary (2-3 sentences) of the overall financial health and outlook.
+    2. 2-3 actionable insights or recommendations for an end user (e.g., investor, analyst).
+    3. Highlight any major strengths or risks.
+    Output should be clear, actionable, and easy to understand for a non-expert.
+    Do not repeat the full analysis, just summarize and extract key points.
+  `,
+});
+
+async function summarizeAnalysis(agent: any, analysisObj: any) {
+  // Combine all analysis fields into a single string
+  const analysisText = Object.entries(analysisObj)
+    .map(([key, value]) => `--- ${key.toUpperCase()} ---\n${value}`)
+    .join("\n\n");
+  const prompt = `Here is the full financial analysis for a stock. Please summarize and provide actionable insights for the end user.\n\n${analysisText}`;
+  const response = await agent.stream([
+    {
+      role: "user",
+      content: prompt,
+    },
+  ]);
+  let responseStr = "";
+  for await (const chunk of response.textStream) {
+    responseStr += chunk;
+  }
+  let filtered = removeThinkTags(responseStr);
+  return filtered;
+}
+
+const summarizeStep = createStep({
+  id: "summarize-analysis",
+  description: "Summarizes the full financial analysis and provides actionable insights for the end user.",
+  inputSchema: z.object({
+    ticker: z.string(),
+    currentStockPrice: z.string(),
+    dividends: z.string(),
+    incomeStatement: z.string(),
+    cashFlow: z.string(),
+    news: z.string(),
+    recommendations: z.string(),
+    earnings: z.string(),
+  }),
+  outputSchema: z.object({
+    analysis: z.string(),
+  }),
+  execute: async ({ inputData }) => {
+    const summary = await summarizeAnalysis(summaryAgent, inputData);
+    return { analysis: summary };
+  },
+});
+
 const financialAnalysisWorkflow = createWorkflow({
   id: "financial-analysis-workflow",
   inputSchema: z.object({
@@ -348,7 +403,8 @@ const financialAnalysisWorkflow = createWorkflow({
 })
     .then(fetchTicker)
     .then(fetchStockData)
-    .then(analyzeStockData);
+    .then(analyzeStockData)
+    .then(summarizeStep);
 
 financialAnalysisWorkflow.commit();
 
