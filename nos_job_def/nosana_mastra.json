@@ -4,10 +4,13 @@
       "id": "agents",
       "args": {
         "gpu": true,
-        "image": "docker.io/yourusername/agent-challenge:latest",
+        "image": "docker.io/joviandsouza/agent-challenge:latest",
         "expose": [
           {
             "port": 8080
+          },
+          {
+            "port": 8081
           }
         ],
         "entrypoint": [

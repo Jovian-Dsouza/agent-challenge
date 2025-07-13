@@ -190,16 +190,16 @@ Note: You'll need an account on [Dockerhub](https://hub.docker.com/)
 ```sh
 
 # Build and tag
-docker build -t yourusername/agent-challenge:latest .
+docker build -t joviandsouza/agent-challenge:latest .
 
 # Run the container locally
-docker run -p 8080:8080 yourusername/agent-challenge:latest
+docker run -p 8080:8080 -p 8081:8081 joviandsouza/agent-challenge:latest
 
 # Login
 docker login
 
 # Push
-docker push yourusername/agent-challenge:latest
+docker push joviandsouza/agent-challenge:latest
 ```
 
 #### 3. Nosana Deployment
