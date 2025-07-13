@@ -140,6 +140,17 @@ const fetchTicker = createStep({
   },
 });
 
+async function fetchYahooFinanceData(tools: any, key: string, symbol: string ) : Promise<string> {
+    const result = await tools[`yahoo-finance_${key}`].execute({
+        context: { symbol },
+      });
+    // console.log(key, " -> ", result)
+    if(result.content[0].text){
+        return result.content[0].text
+    }
+    return "N/A"
+}
+
 const fetchStockData = createStep({
   id: "fetch-stock-data",
   description: "Fetches current stock price and basic market data",
@@ -148,7 +159,13 @@ const fetchStockData = createStep({
   }),
   outputSchema: z.object({
     ticker: z.string(),
-    stockPrice: z.string(),
+    currentStockPrice: z.string(),
+    dividends: z.string(),
+    incomeStatement: z.string(),
+    cashFlow: z.string(),
+    news: z.string(),
+    recommendations: z.string(),
+    earnings: z.string()
   }),
   execute: async ({ inputData }) => {
     if (!inputData || !inputData.ticker) {
@@ -158,14 +175,23 @@ const fetchStockData = createStep({
     const tools = await mcp.getTools();
 
     try {
-      const stockPriceResult = await tools['yahoo-finance_get_current_stock_price'].execute({
-        context: { symbol: ticker },
-      });
-      console.log("stockPriceResult:", stockPriceResult);
+      const currentStockPrice = await fetchYahooFinanceData(tools, 'get_current_stock_price', ticker)
+      const dividends = await fetchYahooFinanceData(tools, 'get_dividends', ticker)
+      const incomeStatement = await fetchYahooFinanceData(tools, 'get_income_statement', ticker)
+      const cashFlow = await fetchYahooFinanceData(tools, 'get_cashflow', ticker)
+      const news = await fetchYahooFinanceData(tools, 'get_news', ticker)
+      const recommendations = await fetchYahooFinanceData(tools, 'get_recommendations', ticker)
+      const earnings = await fetchYahooFinanceData(tools, 'get_earning_dates', ticker)
 
       return {
         ticker,
-        stockPrice: stockPriceResult.content[0].text
+        currentStockPrice,
+        dividends,
+        incomeStatement,
+        cashFlow,
+        news,
+        recommendations,
+        earnings
       };
     } catch (error: any) {
       throw new Error(
