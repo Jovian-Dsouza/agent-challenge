@@ -292,12 +292,12 @@ const analyzeStockData = createStep({
       }
       const { ticker, currentStockPrice, dividends, incomeStatement, cashFlow, news, recommendations, earnings } = inputData
 
-      console.log("dividends", dividends.length)
-      console.log("incomeStatement", incomeStatement.length)
-      console.log("cashFlow", cashFlow.length)
-      console.log("news", news.length)
-      console.log("recommendations", recommendations.length)
-      console.log("earnings", earnings.length)
+    //   console.log("dividends", dividends.length)
+    //   console.log("incomeStatement", incomeStatement.length)
+    //   console.log("cashFlow", cashFlow.length)
+    //   console.log("news", news.length)
+    //   console.log("recommendations", recommendations.length)
+    //   console.log("earnings", earnings.length)
 
 
 
@@ -323,7 +323,7 @@ const analyzeStockData = createStep({
           dividends: dividendAnalysis,
           incomeStatement: incomeStatementAnalysis,
           cashFlow: cashFlowAnalysis,
-          new: newsAnalysis,
+          news: newsAnalysis,
           recommendations,
           earnings: earningsAnalysis
         };
