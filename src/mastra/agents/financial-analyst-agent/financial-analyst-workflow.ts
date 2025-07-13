@@ -301,15 +301,22 @@ const analyzeStockData = createStep({
 
 
 
-    const dividendAnalysis = await analyzeData(dividendAnalysisAgent, dividends)
-    const newsAnalysis = await analyzeData(newsAnalysisAgent, news)
-    const incomeStatementAnalysis = await analyzeData(incomeStatementAgent, incomeStatement)
-    const cashFlowAnalysis = await analyzeData(cashFlowAnalysisAgent, cashFlow)
-    const earningsAnalysis = await analyzeData(earningsAnalysisAgent, earnings)
+    const [
+      dividendAnalysis,
+      newsAnalysis,
+      incomeStatementAnalysis,
+      cashFlowAnalysis,
+      earningsAnalysis
+    ] = await Promise.all([
+      analyzeData(dividendAnalysisAgent, dividends),
+      analyzeData(newsAnalysisAgent, news),
+      analyzeData(incomeStatementAgent, incomeStatement),
+      analyzeData(cashFlowAnalysisAgent, cashFlow),
+      analyzeData(earningsAnalysisAgent, earnings)
+    ]);
 
       
       try {
-  
         return {
           ticker,
           currentStockPrice,
