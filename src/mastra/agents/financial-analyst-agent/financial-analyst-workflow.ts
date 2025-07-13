@@ -31,56 +31,93 @@ const tickerResolverAgent = new Agent({
   tools: await mcp.getTools(),
 });
 
-/**
- * Resolves a company name or input to its correct stock ticker symbol
- * @param {string} input - Company name or potential ticker symbol
- * @returns {Promise<string>} - The resolved ticker symbol in uppercase
- */
-async function resolveTickerSymbol(input: string) {
-  if (!input || typeof input !== "string") {
-    throw new Error("Invalid input: must be a non-empty string");
-  }
+// Subagent for Dividend Analysis
+const dividendAnalysisAgent = new Agent({
+    name: "Dividend Analysis Agent",
+    model,
+    instructions: `
+      You are a dividend analysis specialist. Analyze dividend payment data and provide insights.
+  
+      ANALYSIS FRAMEWORK:
+      1. Dividend Yield & Growth Analysis
+      2. Payment Consistency & Reliability
+      3. Dividend Sustainability Assessment
+      4. Income Investment Perspective
+  
+      Provide specific data points and actionable insights for income-focused investors. Provide concise output in less than 400 words
+    `,
+  });
 
-  const cleanInput = input.trim();
+  const cashFlowAnalysisAgent = new Agent({
+    name: "Cash Flow Analysis Agent",
+    model,
+    instructions: `
+      You are a cash flow analysis specialist. Analyze cash generation, capital allocation, and financial flexibility.
+  
+      ANALYSIS FRAMEWORK:
+      1. Operating Cash Flow Analysis
+      2. Free Cash Flow Generation
+      3. Capital Allocation Strategy
+      4. Financial Flexibility Assessment
+  
+      Output
+      • Overall Assessment: [Excellent/Good/Fair/Poor]
+      • Cash Generation: [Strong/Moderate/Weak]
+      • Capital Efficiency: [High/Medium/Low]
+      • Financial Stability: [Strong/Moderate/Weak]
+      
+      Emphasize cash generation quality and capital allocation effectiveness. Provide concise output in less than 400 words
+    `,
+  });
 
-  // Check if input is already a valid ticker (2-5 uppercase letters)
-  const tickerRegex = /^[A-Z]{2,5}$/;
-  if (tickerRegex.test(cleanInput)) {
-    console.log(`Input "${cleanInput}" is already a valid ticker symbol`);
-    return cleanInput;
-  }
+  const newsAnalysisAgent = new Agent({
+    name: "News Analysis Agent",
+    model,
+    instructions: `
+      You are a financial news analysis specialist. Analyze recent news for market impact and investment implications. 
+  
+      ANALYSIS FRAMEWORK:
+      1. News Sentiment Analysis
+      2. Market Impact Assessment
+      3. Strategic Implications
+      4. Timeline and Materiality
+  
+      Focus on material news items and their potential impact on stock performance. Provide concise output in less than 400 words
+    `,
+  });
 
-  try {
-    console.log(`Resolving ticker for: "${cleanInput}"`);
+  const incomeStatementAgent = new Agent({
+    name: "Income Statement Analysis Agent",
+    model,
+    instructions: `
+      You are an income statement analysis specialist. Analyze revenue, profitability, and operational efficiency.
+  
+      ANALYSIS FRAMEWORK:
+      1. Revenue Growth & Trends
+      2. Profitability Analysis
+      3. Operational Efficiency
+      4. Year-over-Year Comparisons
+      
+      Focus on trends, margins, and operational efficiency indicators. Provide concise output in less than 400 words
+    `,
+  });
 
-    const prompt = `Find the stock ticker symbol for: ${cleanInput}`;
 
-    const response = await tickerResolverAgent.stream([
-      {
-        role: "user",
-        content: prompt,
-      },
-    ]);
-
-    let tickerResponse = "";
-    for await (const chunk of response.textStream) {
-      tickerResponse += chunk;
-    }
-
-    // Extract ticker from response (remove any extra text)
-    const tickerMatch = tickerResponse.match(/([A-Z]{2,5})/);
-    const ticker = tickerMatch ? tickerMatch[1] : cleanInput.toUpperCase();
-
-    console.log(`Resolved ticker: "${cleanInput}" → "${ticker}"`);
-    return ticker;
-  } catch (error: any) {
-    console.warn(
-      `Failed to resolve ticker for "${cleanInput}": ${error.message}`
-    );
-    console.warn(`Falling back to uppercase: "${cleanInput.toUpperCase()}"`);
-    return cleanInput.toUpperCase();
-  }
-}
+  const earningsAnalysisAgent = new Agent({
+    name: "Earnings Analysis Agent",
+    model,
+    instructions: `
+      You are an earnings analysis specialist. Analyze earnings performance, estimates, and surprises.
+  
+      ANALYSIS FRAMEWORK:
+      1. Earnings Performance Analysis
+      2. Estimate vs. Actual Comparison
+      3. Earnings Surprise History
+      4. Future Earnings Outlook
+      
+      Focus on earnings trends, surprise patterns, and forward-looking indicators. Provide concise output in less than 400 words
+    `,
+  });
 
 const fetchTicker = createStep({
   id: "fetch-ticker",
@@ -201,6 +238,96 @@ const fetchStockData = createStep({
   },
 });
 
+function removeThinkTags(input: string): string {
+    return input.replace(/<think>[\s\S]*?<\/think>/g, "");
+  }
+
+async function analyzeData(agent: any, data: string) {
+    if (data === "" || data === "N/A") {
+        return ("N/A")
+    }
+    const prompt = `Here is the data: ${data}`;
+    const response = await agent.stream([
+    {
+        role: "user",
+        content: prompt,
+    },
+    ]);
+
+    let responseStr = "";
+    for await (const chunk of response.textStream) {
+    responseStr += chunk;
+    }
+    let filtered = removeThinkTags(responseStr);
+    return filtered
+}
+
+
+const analyzeStockData = createStep({
+    id: "analyze-stock-data",
+    description: "Analyzes the stock data",
+    inputSchema: z.object({
+        ticker: z.string(),
+        currentStockPrice: z.string(),
+        dividends: z.string(),
+        incomeStatement: z.string(),
+        cashFlow: z.string(),
+        news: z.string(),
+        recommendations: z.string(),
+        earnings: z.string()
+    }),
+    outputSchema: z.object({
+      ticker: z.string(),
+      currentStockPrice: z.string(),
+      dividends: z.string(),
+      incomeStatement: z.string(),
+      cashFlow: z.string(),
+      news: z.string(),
+      recommendations: z.string(),
+      earnings: z.string()
+    }),
+    execute: async ({ inputData }) => {
+      if (!inputData || !inputData.ticker) {
+        throw new Error("Input data not found");
+      }
+      const { ticker, currentStockPrice, dividends, incomeStatement, cashFlow, news, recommendations, earnings } = inputData
+
+      console.log("dividends", dividends.length)
+      console.log("incomeStatement", incomeStatement.length)
+      console.log("cashFlow", cashFlow.length)
+      console.log("news", news.length)
+      console.log("recommendations", recommendations.length)
+      console.log("earnings", earnings.length)
+
+
+
+    const dividendAnalysis = await analyzeData(dividendAnalysisAgent, dividends)
+    const newsAnalysis = await analyzeData(newsAnalysisAgent, news)
+    const incomeStatementAnalysis = await analyzeData(incomeStatementAgent, incomeStatement)
+    const cashFlowAnalysis = await analyzeData(cashFlowAnalysisAgent, cashFlow)
+    const earningsAnalysis = await analyzeData(earningsAnalysisAgent, earnings)
+
+      
+      try {
+  
+        return {
+          ticker,
+          currentStockPrice,
+          dividends: dividendAnalysis,
+          incomeStatement: incomeStatementAnalysis,
+          cashFlow: cashFlowAnalysis,
+          new: newsAnalysis,
+          recommendations,
+          earnings: earningsAnalysis
+        };
+      } catch (error: any) {
+        throw new Error(
+          `Failed to analyze stock data for ${ticker}: ${error.message}`
+        );
+      }
+    },
+  });
+
 const financialAnalysisWorkflow = createWorkflow({
   id: "financial-analysis-workflow",
   inputSchema: z.object({
@@ -213,7 +340,8 @@ const financialAnalysisWorkflow = createWorkflow({
   }),
 })
     .then(fetchTicker)
-    .then(fetchStockData);
+    .then(fetchStockData)
+    .then(analyzeStockData);
 
 financialAnalysisWorkflow.commit();
 
