@@ -195,6 +195,15 @@ docker build -t joviandsouza/agent-challenge:latest .
 # Run the container locally
 docker run -p 8080:8080 -p 8081:8081 joviandsouza/agent-challenge:latest
 
+# Run container with local ollama model
+```
+docker run \
+  -v /Users/jovian.dsouza/.ollama/models:/root/.ollama/models \
+  -p 8080:8080 \
+  -p 8081:8081 \
+  joviandsouza/agent-challenge:latest
+```
+
 # Login
 docker login
 
