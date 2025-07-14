@@ -191,6 +191,7 @@ Note: You'll need an account on [Dockerhub](https://hub.docker.com/)
 
 # Build and tag
 docker build -t joviandsouza/agent-challenge:latest .
+docker buildx build  --platform linux/amd64 -t joviandsouza/agent-challenge:latest .
 
 # Run the container locally
 docker run -p 8080:8080 -p 8081:8081 joviandsouza/agent-challenge:latest
