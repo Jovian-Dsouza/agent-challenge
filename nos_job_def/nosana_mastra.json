@@ -12,9 +12,6 @@
           {
             "port": 8081
           }
-        ],
-        "entrypoint": [
-          "/bin/sh"
         ]
       },
       "type": "container/run"
